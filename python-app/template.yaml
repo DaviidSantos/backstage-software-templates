@@ -29,6 +29,10 @@ spec:
             - dev
             - qa
             - prod
+        description:
+          title: App Description
+          type: string
+          description: The description of this component
 
   steps:
     - id: fetch-base
@@ -38,6 +42,7 @@ spec:
         url: ./template
         values:
           app_name: ${{parameters.component_id}}
+          app_description: ${{parameters.description}}
           app_env: ${{parameters.environment}}
 
     - id: publish
