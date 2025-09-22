@@ -5,7 +5,7 @@ metadata:
   description: ${{values.app_description}}
   # Example for optional annotations
   annotations:
-    github.com/project-slug: daviidsantos/%{{values.app_name}}
+    github.com/project-slug: daviidsantos/${{values.app_name}}
 
 spec:
   type: service
