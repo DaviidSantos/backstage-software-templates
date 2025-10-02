@@ -63,7 +63,7 @@ jobs:
           fi
 
       - name: Registers repository in ArgoCD
-        if: steps.check_repo.outputs.repo_exists == "true"
+        if: steps.check_repo.outputs.repo_exists == 'false'
         shell: bash
         run: |
           argocd repo add https://github.com/odaavid-santos/${{values.app_name}}.git
@@ -79,7 +79,7 @@ jobs:
           fi
 
       - name: Creates app in ArgoCD
-        if: steps.check_app.outputs.app_exists == "true"
+        if: steps.check_app.outputs.app_exists == 'false'
         shell: bash
         run: |
           argocd app create ${{values.app_name}} \
