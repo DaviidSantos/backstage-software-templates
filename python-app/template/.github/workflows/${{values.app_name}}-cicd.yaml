@@ -45,9 +45,51 @@ jobs:
         run: |
           curl -ksSL -o argocd https://argocd-server.argocd/download/argocd-linux-amd64
           chmod +x argocd
-          sudo mv ./argocd /usr/local/bin/argocd
-      - name: ArgoCD App Sync
+          sudo mv ./argocd /usr/local/bin/argocd\
+
+      - name: ArgoCD Login
         shell: bash
         run: |
           argocd login argocd-server.argocd --insecure --grpc-web --username admin --password ${{'${{ secrets.ARGOCD_PASSWORD }}'}}
+
+      - name: Check if repository is registered in ArgoCD
+        id: check_repo
+        shell: bash
+        run: |
+          if grep -q ${{values.app_name}} argocd repo list; then
+            echo "repo_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "repo_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Registers repository in ArgoCD
+        if: steps.check_repo.outputs.repo_exists == "true"
+        shell: bash
+        run: |
+          argocd repo add https://github.com/odaavid-santos/${{values.app_name}}.git
+
+      - name: Check if App already exists in ArgoCD
+        id: check_app
+        shell: bash
+        run: |
+          if grep -q ${{values.app_name}} argocd app list; then
+            echo "app_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "app_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Creates app in ArgoCD
+        if: steps.check_app.outputs.app_exists == "true"
+        shell: bash
+        run: |
+          argocd app create ${{values.app_name}} \
+          --repo https://github.com/odaavid-santos/${{values.app_name}}.git \
+          --path charts/${{values.app_name}} \
+          --dest-server https://kubernetes.default.svc \
+          --dest-namespace ${{values.namespace}} \
+          --sync-option CreateNamespace=true
+
+      - name: ArgoCD App Sync
+        shell: bash
+        run: |
           argocd app sync ${{values.app_name}}
