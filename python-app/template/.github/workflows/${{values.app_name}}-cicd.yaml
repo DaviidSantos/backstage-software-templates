@@ -86,7 +86,7 @@ jobs:
           --repo https://github.com/odaavid-santos/${{values.app_name}}.git \
           --path charts/${{values.app_name}} \
           --dest-server https://kubernetes.default.svc \
-          --dest-namespace ${{values.namespace}} \
+          --dest-namespace ${{values.app_name}} \
           --sync-option CreateNamespace=true
 
       - name: ArgoCD App Sync
